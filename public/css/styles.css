@@ -1,0 +1,34 @@
+
+body {
+  background-color: #E8ECEF;
+}
+
+.centered {
+    padding-top: 200px;
+    text-align: center;
+}
+
+.secret-text {
+  text-align: center;
+  font-size: 2rem;
+  color: #fff;
+  background-color: #000;
+}
+
+/* my styles (NOte i changed the secret page secret-text element to div*/
+div.secret-text {
+  text-align: center;
+  font-size: 1rem;
+  color: #fff;
+  background-color: #000;
+  margin: 1rem 0;
+  padding: 0 1rem;
+}
+
+.secret-text p {
+  margin: 0;
+}
+.secret-text a {
+  color: rgb(253, 164, 54);
+}
+
