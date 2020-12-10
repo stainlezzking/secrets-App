@@ -20,7 +20,7 @@ app.use(express.static("public"))
 app.use(bodyParser.urlencoded({extended:false}))
 
 app.use(session({
-    secret : process.env.session.key,
+    secret : process.env.session_key,
     resave : false,
     saveUninitialized : false,
     cookie :{
@@ -34,7 +34,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 // connection to mongoose
-mongoose.connect("mongodb+srv://"+process.env.db.username+":"+ process.env.db.password+"@todotest.pephm.mongodb.net/secrets?retryWrites=true&w=majority",{ useNewUrlParser: true,useUnifiedTopology: true })
+mongoose.connect("mongodb+srv://"+process.env.db_username+":"+ process.env.db_password+"@todotest.pephm.mongodb.net/secrets?retryWrites=true&w=majority",{ useNewUrlParser: true,useUnifiedTopology: true })
 
 
 //create model/collection
@@ -65,7 +65,7 @@ app.route("/register")
             }
             if(!user){
                 // hashing with bcrypt
-                bcrypt.hash(req.body.password, process.env.bcrypt.saltRounds, function(err, hash){
+                bcrypt.hash(req.body.password, process.env.bcrypt_saltRounds, function(err, hash){
                     User.create({
                     username : req.body.username,
                     password : hash
