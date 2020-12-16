@@ -9,7 +9,7 @@ const localStrategy = require("passport-local")
 const session = require("express-session")
 const middleware = require(__dirname +"/modules/middleware")
 // const { allSecrets } = require(__dirname +"/modules/middleware")
-const secretKey = require(__dirname + "/modules/secret.js")
+// const secretKey = require(__dirname + "/modules/secret.js")
 const allPass = require("./modules/pass-setup")
 const { userSchema, googleConfig } = require("./modules/pass-setup")
 const bcrypt = require("bcrypt")
@@ -21,8 +21,8 @@ app.use(express.static("public"))
 app.use(bodyParser.urlencoded({extended:false}))
 
 app.use(session({
-   // secret : process.env.session_key,
-    secret :secretKey.session_key,
+    secret : process.env.session_key,
+    //secret :secretKey.session_key,
     resave : false,
     saveUninitialized : false,
     maxAge : 20 * 24 * 60 * 60 
@@ -34,8 +34,8 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 // connection to mongoose
-mongoose.connect("mongodb://localhost:27017/MyDB",{ useNewUrlParser: true,useUnifiedTopology: true })
-//mongoose.connect("mongodb+srv://"+process.env.db_username+":"+ process.env.db_password+"@todotest.pephm.mongodb.net/secrets?retryWrites=true&w=majority",{ useNewUrlParser: true,useUnifiedTopology: true })
+//mongoose.connect("mongodb://localhost:27017/MyDB",{ useNewUrlParser: true,useUnifiedTopology: true })
+mongoose.connect("mongodb+srv://"+process.env.db_username+":"+ process.env.db_password+"@todotest.pephm.mongodb.net/secrets?retryWrites=true&w=majority",{ useNewUrlParser: true,useUnifiedTopology: true })
 
 
 //create model/collection
@@ -69,11 +69,11 @@ app.route("/register")
             if(!user){
                 // hashing with bcrypt
                 //bcrypt.hash(req.body.password, process.env.bcrypt_saltRounds, function(err, hash){
-                bcrypt.hash(req.body.password, secretKey.bcrypt_saltRounds, function(err, hash){
+                bcrypt.hash(req.body.password, process.env.bcrypt_saltRounds, function(err, hash){
                     User.create({
                     username : req.body.username,
                     password : hash
-                })
+                 })
                 .then(data=>{
                     console.log("data saved :" + data)
                     passport.authenticate("local")(req,res,function(){
