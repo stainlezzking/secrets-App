@@ -1,6 +1,5 @@
 const mongoose = require("mongoose")
 const  bcrypt  = require("bcrypt")
-const { client_Secret, client_Id } = require("./secret")
 const GoogleStrategy = require("passport-google-oauth20")
 // create schema
 
@@ -62,8 +61,8 @@ passport.use(
 function googleConfig(passport,User) {
   
     passport.use(new GoogleStrategy({
-        clientID: client_Id ,
-        clientSecret: client_Secret,
+        clientID: process.env.client_Id ,
+        clientSecret: process.env.client_Secret,
         callbackURL: "http://localhost:2000/auth/google/callback"
       },
       function(accessToken, refreshToken, profile, done) {
