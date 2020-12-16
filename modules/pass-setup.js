@@ -63,7 +63,8 @@ function googleConfig(passport,User) {
     passport.use(new GoogleStrategy({
         clientID: process.env.client_Id ,
         clientSecret: process.env.client_Secret,
-        callbackURL: "http://localhost:2000/auth/google/callback"
+       // callbackURL: "http://localhost:2000/auth/google/callback"
+        callbackURL: "https://secretly-hidden.herokuapp.com/auth/google/callback"
       },
       function(accessToken, refreshToken, profile, done) {
        User.findOne({username:profile._json.email}, function(err,user){
