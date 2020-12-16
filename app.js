@@ -9,10 +9,11 @@ const localStrategy = require("passport-local")
 const session = require("express-session")
 const middleware = require(__dirname +"/modules/middleware")
 // const { allSecrets } = require(__dirname +"/modules/middleware")
-// const secretKey = require(__dirname + "/modules/secret.js")
+const secretKey = require(__dirname + "/modules/secret.js")
 const allPass = require("./modules/pass-setup")
-const { userSchema } = require("./modules/pass-setup")
+const { userSchema, googleConfig } = require("./modules/pass-setup")
 const bcrypt = require("bcrypt")
+
 
 
 
@@ -20,12 +21,11 @@ app.use(express.static("public"))
 app.use(bodyParser.urlencoded({extended:false}))
 
 app.use(session({
-    secret : process.env.session_key,
+   // secret : process.env.session_key,
+    secret :secretKey.session_key,
     resave : false,
     saveUninitialized : false,
-    cookie :{
-        expires : 60000
-    }
+    maxAge : 20 * 24 * 60 * 60 
 }))
 
 app.set("view engine", "ejs")
@@ -34,12 +34,15 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 // connection to mongoose
-mongoose.connect("mongodb+srv://"+process.env.db_username+":"+ process.env.db_password+"@todotest.pephm.mongodb.net/secrets?retryWrites=true&w=majority",{ useNewUrlParser: true,useUnifiedTopology: true })
+mongoose.connect("mongodb://localhost:27017/MyDB",{ useNewUrlParser: true,useUnifiedTopology: true })
+//mongoose.connect("mongodb+srv://"+process.env.db_username+":"+ process.env.db_password+"@todotest.pephm.mongodb.net/secrets?retryWrites=true&w=majority",{ useNewUrlParser: true,useUnifiedTopology: true })
 
 
 //create model/collection
 const User = new mongoose.model("user", userSchema)
 
+// authenticate with google, raw code in pass-setup file
+googleConfig(passport,User)
 
 //serialize users
 allPass.serializePass(passport,User,localStrategy)
@@ -65,7 +68,8 @@ app.route("/register")
             }
             if(!user){
                 // hashing with bcrypt
-                bcrypt.hash(req.body.password, process.env.bcrypt_saltRounds, function(err, hash){
+                //bcrypt.hash(req.body.password, process.env.bcrypt_saltRounds, function(err, hash){
+                bcrypt.hash(req.body.password, secretKey.bcrypt_saltRounds, function(err, hash){
                     User.create({
                     username : req.body.username,
                     password : hash
@@ -137,6 +141,17 @@ app.post("/submit", function(req,res){
     })
 })
 
+// GOOGLE AUTHENTUCATION
+app.get("/auth/google", passport.authenticate("google", {
+    scope : ["profile","email", "openid"]
+})
+)
+
+app.get("/auth/google/callback", passport.authenticate("google"), function(req,res){
+    res.redirect("/profile")
+})
+
+
 // I WNATED TO ADD PROPERTY TO THE REQUEST OBJ TO BE ACCESSED BY THE NEXT MIDDLE WARE (DIDNT WORK)
 // const allSecrets = (req,res,User,next)=>{
 //     User.find({"secrets.1" : {$exists : true}}, function(err,data){
@@ -158,5 +173,4 @@ app.get("/logout", function(req,res){
 app.listen(process.env.PORT || 2000,()=>{
     console.log("sever up on port 3000")
 })
-
 

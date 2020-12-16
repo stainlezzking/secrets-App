@@ -1,5 +1,7 @@
 const mongoose = require("mongoose")
 const  bcrypt  = require("bcrypt")
+const { client_Secret, client_Id } = require("./secret")
+const GoogleStrategy = require("passport-google-oauth20")
 // create schema
 
 //secrets schema
@@ -53,9 +55,35 @@ passport.use(
    })
 );
 
+
 }
 
+
+function googleConfig(passport,User) {
+  
+    passport.use(new GoogleStrategy({
+        clientID: client_Id ,
+        clientSecret: client_Secret,
+        callbackURL: "http://localhost:2000/auth/google/callback"
+      },
+      function(accessToken, refreshToken, profile, done) {
+       User.findOne({username:profile._json.email}, function(err,user){
+           if(err) console.log(err.message)
+           if (user){
+               return done(null, user)
+           }
+           if(!user){
+               User.create({
+                   username : profile._json.email,
+               }).then(newuser=> done(null,newuser))
+           }
+       })
+        console.log(profile._json)
+      }
+    ));
+}
 module.exports ={
     serializePass,
-    userSchema
+    userSchema,
+    googleConfig
 }
